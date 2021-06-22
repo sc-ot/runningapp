@@ -1,7 +1,9 @@
+import 'package:bestpractice/core/components/history/history_page.dart';
 import 'package:bestpractice/core/components/login/register_page.dart';
 import 'package:bestpractice/core/global_binding.dart';
 import 'package:bestpractice/core/components/login/login_page.dart';
 import 'package:bestpractice/core/middleware/auth_middleware.dart';
+import 'package:bestpractice/core/model/run.dart';
 import 'package:bestpractice/core/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -30,6 +32,7 @@ void cacheSetup(Map<String, dynamic> context) {
 Future<void> initCache(CacheRequestHandler cacheRequestHandler) async {
   await Hive.initFlutter();
   Hive.registerAdapter(CacheDataAdapter());
+  Hive.registerAdapter(RunAdapter());
   await cacheRequestHandler.initCache();
 }
 
@@ -39,7 +42,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   CacheRequestHandler cacheRequestHandler = CacheRequestHandler();
   await initCache(cacheRequestHandler);
-  Constants.loggedIn = await Storage.load("loggedIn");
+  Constants.loggedIn = await Storage.load("authStatus");
 
   runApp(GetMaterialApp(
     enableLog: false,
@@ -64,6 +67,11 @@ void main() async {
       GetPage(
         name: Routes.REGISTER,
         page: () => RegisterPage(),
+        middlewares: [],
+      ),
+      GetPage(
+        name: Routes.HISTORY,
+        page: () => HistoryPage(),
         middlewares: [],
       ),
     ],

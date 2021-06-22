@@ -22,6 +22,7 @@ class Network extends GetConnect {
   void onInit() {
     httpClient.baseUrl = Constants.BASE_URL;
     cacheRequestHandler = CacheRequestHandler();
+    httpClient.defaultContentType = 'application/json; charset=utf-8';
     super.onInit();
   }
 
@@ -69,6 +70,7 @@ class Network extends GetConnect {
         });
         break;
       case Method.POST:
+      this.baseUrl = 'http://10.0.2.2:5000';
         post(path, body).asStream().listen((response) async {
           RequestData requestData = RequestData(
               this,

@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:bestpractice/controller.dart';
 import 'package:bestpractice/core/db/storage.dart';
 import 'package:bestpractice/core/model/failure.dart';
 import 'package:bestpractice/core/model/login_response.dart';
 import 'package:bestpractice/core/network/api.dart';
 import 'package:bestpractice/core/utils/constants.dart';
+import 'package:bestpractice/core/utils/routes.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -41,15 +45,17 @@ class LoginController extends Controller {
 
     postApi.login({
       "username": username.text,
-      "password": password.text,
+      "password":  sha256.convert(utf8.encode(password.text)).toString(),
     }).listen((response) {
       response.fold(
         (Failure failure) {
           Get.snackbar("FEHLER!", failure.statusCode.toString());
         },
-        (LoginResponse data) {
+        (LoginResponse data) async {
           if (data.exists!) {
-            Get.snackbar("EINGELOGGT", "BRO BIST EINGELOGGT!");
+            await Storage.save("authStatus", true);
+            Constants.loggedIn = true;
+            Get.toNamed(Routes.HOME);
           } else {
             Get.snackbar("VERKACKT", "BRO BIST NICHT EINGELOGGT!");
           }

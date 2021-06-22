@@ -5,18 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AuthMiddleware extends GetMiddleware {
-  bool? loggedIn = false;
-
   AuthMiddleware() {
-    checkAuth();
+    print("TEST");
   }
 
-  void checkAuth() async {
-    loggedIn = await Storage.load("loggedIn");
-    if (loggedIn == null) {
-      loggedIn = false;
+  Future<bool> checkAuth() async {
+    bool? authStatus = false;
+    authStatus = await Storage.load("authStatus");
+    if (authStatus == null) {
+      authStatus = false;
     }
-   
+    return authStatus;
   }
 
   @override
@@ -24,9 +23,9 @@ class AuthMiddleware extends GetMiddleware {
   @override
   RouteSettings? redirect(String? route) {
     // TRUE: ZUR LOGINPAGE
-
-    if ( Constants.loggedIn == null || Constants.loggedIn == false){
-      return RouteSettings(name: Routes.LOGIN);
+    print("REDIRECT");
+    if(Constants.loggedIn == null || !Constants.loggedIn!){
+        return RouteSettings(name: Routes.LOGIN);
     }
   }
 
