@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:bestpractice/controller.dart';
 import 'package:bestpractice/core/db/storage.dart';
 import 'package:bestpractice/core/model/run.dart';
 import 'package:bestpractice/core/network/api.dart';
+import 'package:bestpractice/core/services/maps_service.dart';
 import 'package:bestpractice/core/services/weather_service.dart';
 import 'package:bestpractice/core/utils/constants.dart';
 import 'package:bestpractice/core/utils/state.dart';
@@ -15,6 +17,8 @@ import 'package:geolocator/geolocator.dart';
 
 class POSITION_CHANGE extends UIState {}
 
+const CAMERA_ZOOM_FACTOR = 15.0;
+
 class HomeController extends Controller {
   Api postApi = Get.find();
   late CameraPosition cameraPosition;
@@ -23,50 +27,56 @@ class HomeController extends Controller {
 
   late GoogleMapController mapsController;
   late Timer currentTime;
-  late String titleCurrentTime;
-  double speed = 0;
+  late Marker marker;
+
   int minute = 0;
   int hour = 0;
   int second = 0;
-  late Marker marker;
-  List<Position> positions = [];
+
+  double speed = 0;
   String city = "";
   double weatherTemperature = 0;
+
+  List<Position> positions = [];
 
   late StreamSubscription<Position> positionStream;
 
   @override
   void onInit() {
     activeRun = false;
-    titleCurrentTime = "00:00:00";
     initLocation();
+    initGoogleMaps();
+
     setState(LOADING());
     super.onInit();
   }
 
+  String getCurrentTime() {
+    String secondString =
+        second < 9 ? "0" + second.toString() : second.toString();
+    String minuteString =
+        minute < 9 ? "0" + minute.toString() : minute.toString();
+    String hourString = hour < 9 ? "0" + hour.toString() : hour.toString();
+
+    return hourString + ":" + minuteString + ":" + secondString;
+  }
+
+  void updateTime() {
+    second++;
+    if (second == 60) {
+      minute++;
+      second = 0;
+    }
+    if (minute == 60) {
+      minute = 0;
+      hour++;
+    }
+    setState(SUCCESS());
+  }
+
   void startOrStopRun() => activeRun ? stopRun() : startRun();
 
-  void initLocation() async {
-    Position? locationData = await Geolocator.getCurrentPosition();
-    if (locationData != null) {
-      cameraPosition = CameraPosition(
-        zoom: 15,
-        target: LatLng(
-          locationData.latitude,
-          locationData.longitude,
-        ),
-      );
-    } else {
-      cameraPosition = CameraPosition(
-        zoom: 15,
-        target: LatLng(
-          50,
-          50,
-        ),
-      );
-    }
-
-
+  void initGoogleMaps() {
     mapsControllerCompleter.future.then(
       (value) {
         mapsController = value;
@@ -78,8 +88,30 @@ class HomeController extends Controller {
           position: cameraPosition.target,
         );
         getAdress();
+        startPositionTracking(runStarted: false);
       },
     );
+  }
+
+  void initLocation() async {
+    var position = await MapsService.getLocation();
+    if (position == null) {
+      cameraPosition = CameraPosition(
+        zoom: CAMERA_ZOOM_FACTOR,
+        target: LatLng(
+          50,
+          50,
+        ),
+      );
+    } else {
+      cameraPosition = CameraPosition(
+        zoom: CAMERA_ZOOM_FACTOR,
+        target: LatLng(
+          position.latitude,
+          position.longitude,
+        ),
+      );
+    }
   }
 
   void getAdress() async {
@@ -106,29 +138,44 @@ class HomeController extends Controller {
     );
   }
 
-  void startPositionStream() {
+  void startPositionTracking({required bool runStarted}) {
     positionStream =
         Geolocator.getPositionStream(intervalDuration: Duration(seconds: 5))
             .listen(
       (Position position) {
-        speed = position.speed;
-        print(speed);
-        positions.add(position);
-        cameraPosition = CameraPosition(
-          zoom: 15,
-          target: LatLng(
-            position.latitude,
-            position.longitude,
-          ),
-        );
-        marker = Marker(
-          markerId: MarkerId("1"),
-          position: LatLng(
-            position.latitude,
-            position.longitude,
-          ),
-        );
+        updateCamera(position);
+        updateMarker(position);
+        if (runStarted) {
+          positions.add(position);
+          speed = position.speed;
+        }
+        setState(SUCCESS());
       },
+    );
+  }
+
+  void stopPositiongTracking() {
+    positionStream.cancel();
+  }
+
+  void updateCamera(Position position) {
+    cameraPosition = CameraPosition(
+      zoom: 15,
+      target: LatLng(
+        position.latitude,
+        position.longitude,
+      ),
+    );
+    centerCamera();
+  }
+
+  void updateMarker(Position position) {
+    marker = Marker(
+      markerId: MarkerId("1"),
+      position: LatLng(
+        position.latitude,
+        position.longitude,
+      ),
     );
   }
 
@@ -141,7 +188,7 @@ class HomeController extends Controller {
     );
     activeRun = true;
 
-    startPositionStream();
+    startPositionTracking(runStarted: true);
   }
 
   void stopRun() async {
@@ -165,7 +212,7 @@ class HomeController extends Controller {
 
     double caloriesBurned = distance * 64 * 0.9;
     Run run = Run(distance, DateTime.now(), caloriesBurned, avgSpeed, hour,
-        minute, second);
+        minute, second, jsonEncode(positions));
 
     Storage.load(Constants.HISTORY_RUN).then((historyRun) {
       List<Run> runs = [];
@@ -184,30 +231,6 @@ class HomeController extends Controller {
     hour = 0;
     positions.clear();
     positionStream.cancel();
-    setState(SUCCESS());
-  }
-
-  void pauseRun() {
-    currentTime.cancel();
-    activeRun = false;
-  }
-
-  void updateTime() {
-    second++;
-    if (second == 60) {
-      minute++;
-      second = 0;
-    }
-    if (minute == 60) {
-      minute = 0;
-      hour++;
-    }
-
-    titleCurrentTime = addLeadingZeroNumber(hour) +
-        ":" +
-        addLeadingZeroNumber(minute) +
-        ":" +
-        addLeadingZeroNumber(second);
     setState(SUCCESS());
   }
 

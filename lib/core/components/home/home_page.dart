@@ -82,12 +82,12 @@ class HomePage extends StatelessWidget implements UIHandlerHome {
 
   @override
   Widget idleStateUi() {
-  return GetBuilder<HomeController>(
+    return GetBuilder<HomeController>(
         init: HomeController(),
         builder: (homeController) {
           return Stack(
             children: [
-             mapWidget(false),
+              mapWidget(false),
               Align(
                 alignment: Alignment.topCenter,
                 child: ClipRRect(
@@ -102,7 +102,7 @@ class HomePage extends StatelessWidget implements UIHandlerHome {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text("KM/H: + " +
+                                Text("KM/H: " +
                                     (homeController.speed * 3.6)
                                         .toStringAsFixed(2)),
                                 Spacer(),
@@ -112,7 +112,7 @@ class HomePage extends StatelessWidget implements UIHandlerHome {
                                 ),
                                 Spacer(),
                                 Text(
-                                  homeController.titleCurrentTime,
+                                  homeController.getCurrentTime(),
                                   style: TextStyle(fontSize: 20),
                                 ),
                               ],
@@ -160,29 +160,31 @@ class HomePage extends StatelessWidget implements UIHandlerHome {
     return successStateUi();
   }
 
-  Widget mapWidget(bool hasMarkers){
-    return  GoogleMap(
-                mapType: MapType.terrain,
-                polylines: {
-                  Polyline(
-                    polylineId: PolylineId("route"),
-                    color: Colors.red,
-                    width: 5,
-                    points: homeController.positions
-                            .map((position) =>
-                                LatLng(position.latitude, position.longitude))
-                            .toList(),
-                      ),
-                },
-                initialCameraPosition: CameraPosition(target: LatLng(10,20)),
-                markers: hasMarkers ? {
-                  homeController.marker,
-                } : {},
-                onMapCreated: (GoogleMapController controller) {
-                  homeController.mapsControllerCompleter.complete(controller);
-                },
-              );
+  Widget mapWidget(bool hasMarkers) {
+    return GoogleMap(
+      mapType: MapType.terrain,
+      polylines: {
+        Polyline(
+          polylineId: PolylineId("route"),
+          color: Colors.red,
+          width: 5,
+          points: homeController.positions
+              .map((position) => LatLng(position.latitude, position.longitude))
+              .toList(),
+        ),
+      },
+      initialCameraPosition: CameraPosition(target: LatLng(10, 20)),
+      markers: hasMarkers
+          ? {
+              homeController.marker,
+            }
+          : {},
+      onMapCreated: (GoogleMapController controller) {
+        homeController.mapsControllerCompleter.complete(controller);
+      },
+    );
   }
+
   @override
   Widget successStateUi() {
     return GetBuilder<HomeController>(
@@ -190,7 +192,7 @@ class HomePage extends StatelessWidget implements UIHandlerHome {
         builder: (homeController) {
           return Stack(
             children: [
-             mapWidget(true),
+              mapWidget(true),
               Align(
                 alignment: Alignment.topCenter,
                 child: ClipRRect(
@@ -205,9 +207,9 @@ class HomePage extends StatelessWidget implements UIHandlerHome {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text("KM/H: + " +
+                                Text(
                                     (homeController.speed * 3.6)
-                                        .toStringAsFixed(2)),
+                                        .toStringAsFixed(1) + " km/h"),
                                 Spacer(),
                                 Text(
                                   homeController.city,
@@ -215,7 +217,7 @@ class HomePage extends StatelessWidget implements UIHandlerHome {
                                 ),
                                 Spacer(),
                                 Text(
-                                  homeController.titleCurrentTime,
+                                  homeController.getCurrentTime(),
                                   style: TextStyle(fontSize: 20),
                                 ),
                               ],
@@ -224,7 +226,7 @@ class HomePage extends StatelessWidget implements UIHandlerHome {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(homeController.weatherTemperature
-                                        .toStringAsFixed(2) +
+                                        .toStringAsFixed(1) +
                                     "°C"),
                               ],
                             ),

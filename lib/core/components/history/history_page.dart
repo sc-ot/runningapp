@@ -1,4 +1,5 @@
 import 'package:bestpractice/core/components/history/history_controller.dart';
+import 'package:bestpractice/core/utils/routes.dart';
 import 'package:bestpractice/core/utils/uihandler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -19,12 +20,6 @@ class HistoryPage extends StatelessWidget implements UIHandler {
         builder: (historyController) {
           return SafeArea(
             child: handleUi(
-              idle: idleStateUi(),
-              loading: loadingStateUi(),
-              success: successStateUi(),
-              error: errorStateUi(),
-              internetConnectivity: internetConnectivityStateUi(),
-              noInternetConnectivity: noInternetConnectivityStateUi(),
             ),
           );
         },
@@ -38,34 +33,26 @@ class HistoryPage extends StatelessWidget implements UIHandler {
   }
 
   @override
-  @override
-  Widget handleUi(
-      {required Widget idle,
-      required Widget loading,
-      required Widget success,
-      required Widget error,
-      required Widget internetConnectivity,
-      required Widget noInternetConnectivity}) {
+  Widget handleUi() {
     switch (historyController.state.runtimeType) {
       case IDLE:
-        return idle;
+        return idleStateUi();
       case LOADING:
-        return loading;
+        return loadingStateUi();
       case SUCCESS:
-        return success;
+        return successStateUi();
       case ERROR:
-        return error;
+        return errorStateUi();
       case INTERNET_CONNECTIVITY:
-        return internetConnectivity;
+        return internetConnectivityStateUi();
       case NO_INTERNET_CONNECTIVITY:
-        return noInternetConnectivity;
+        return noInternetConnectivityStateUi();
       default:
         Container();
     }
     return Container();
   }
 
-  @override
   Widget idleStateUi() {
     return loadingStateUi();
   }
@@ -161,7 +148,11 @@ class HistoryPage extends StatelessWidget implements UIHandler {
                                       ],
                                     ),
                                     TextButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        Get.toNamed(Routes.HISTORY_MAPS, arguments: {
+                                          "positions" : historyController.runs[index].positions,
+                                        });
+                                      },
                                       child: Text("Auf Karte anzeigen"),
                                     ),
                                   ],

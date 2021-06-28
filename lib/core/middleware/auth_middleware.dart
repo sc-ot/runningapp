@@ -24,6 +24,7 @@ class AuthMiddleware extends GetMiddleware {
   RouteSettings? redirect(String? route) {
     // TRUE: ZUR LOGINPAGE
     print("REDIRECT");
+    Constants.loggedIn = false;
     if(Constants.loggedIn == null || !Constants.loggedIn!){
         return RouteSettings(name: Routes.LOGIN);
     }

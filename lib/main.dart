@@ -1,5 +1,6 @@
+import 'package:bestpractice/core/components/history/history_maps_page.dart';
 import 'package:bestpractice/core/components/history/history_page.dart';
-import 'package:bestpractice/core/components/login/register_page.dart';
+import 'package:bestpractice/core/components/register/register_page.dart';
 import 'package:bestpractice/core/global_binding.dart';
 import 'package:bestpractice/core/components/login/login_page.dart';
 import 'package:bestpractice/core/middleware/auth_middleware.dart';
@@ -16,6 +17,7 @@ import 'core/db/storage.dart';
 import 'core/model/cache_data.dart';
 import 'core/network/cache_request_handler.dart';
 import 'core/utils/routes.dart';
+import 'core/utils/themes.dart';
 
 void cacheSetup(Map<String, dynamic> context) {
   final messenger = HandledIsolate.initialize(context);
@@ -44,38 +46,46 @@ void main() async {
   await initCache(cacheRequestHandler);
   Constants.loggedIn = await Storage.load("authStatus");
 
-  runApp(GetMaterialApp(
-    enableLog: false,
-    initialBinding: GlobalBinding(),
-    initialRoute: Routes.INIT,
-    getPages: [
-      GetPage(
-        name: Routes.INIT,
-        page: () => StartUp(),
-        middlewares: [AuthMiddleware()],
-      ),
-      GetPage(
-        name: Routes.HOME,
-        page: () => HomePage(),
-        middlewares: [AuthMiddleware()],
-      ),
-      GetPage(
-        name: Routes.LOGIN,
-        page: () => LoginPage(),
-        middlewares: [],
-      ),
-      GetPage(
-        name: Routes.REGISTER,
-        page: () => RegisterPage(),
-        middlewares: [],
-      ),
-      GetPage(
-        name: Routes.HISTORY,
-        page: () => HistoryPage(),
-        middlewares: [],
-      ),
-    ],
-  ));
+  runApp(
+    GetMaterialApp(
+      enableLog: false,
+      initialBinding: GlobalBinding(),
+      initialRoute: Routes.INIT,
+      theme: Themes().lightTheme,
+      getPages: [
+        GetPage(
+          name: Routes.INIT,
+          page: () => StartUp(),
+          middlewares: [AuthMiddleware()],
+        ),
+        GetPage(
+          name: Routes.HOME,
+          page: () => HomePage(),
+          middlewares: [AuthMiddleware()],
+        ),
+        GetPage(
+          name: Routes.LOGIN,
+          page: () => LoginPage(),
+          middlewares: [],
+        ),
+        GetPage(
+          name: Routes.REGISTER,
+          page: () => RegisterPage(),
+          middlewares: [],
+        ),
+        GetPage(
+          name: Routes.HISTORY,
+          page: () => HistoryPage(),
+          middlewares: [],
+        ),
+        GetPage(
+          name: Routes.HISTORY_MAPS,
+          page: () => HistoryMapsPage(),
+          middlewares: [],
+        ),
+      ],
+    ),
+  );
 }
 
 class StartUp extends StatelessWidget {

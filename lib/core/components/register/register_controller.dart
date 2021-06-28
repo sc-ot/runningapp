@@ -15,6 +15,7 @@ class RegisterController extends Controller {
   @override
   void onInit() {
     setState(IDLE());
+    super.onInit();
   }
 
   void register() {

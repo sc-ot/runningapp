@@ -1,3 +1,4 @@
+import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -22,8 +23,11 @@ class Run {
   late int runMinutes;
    @HiveField(7)
   late int runSeconds;
+   @HiveField(8)
+   late String positions;
 
-  Run(this.runDistance, this.date, this.caloriesBurned, this.avgSpeed, this.runHour, this.runMinutes, this.runSeconds);
+
+  Run(this.runDistance, this.date, this.caloriesBurned, this.avgSpeed, this.runHour, this.runMinutes, this.runSeconds, this.positions);
   factory Run.fromJson(Map<String, dynamic> json) => _$RunFromJson(json);
   Map<String, dynamic> toJson() => _$RunToJson(this);
 

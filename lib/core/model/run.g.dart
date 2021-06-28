@@ -24,13 +24,14 @@ class RunAdapter extends TypeAdapter<Run> {
       fields[5] as int,
       fields[6] as int,
       fields[7] as int,
+      fields[8] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Run obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(1)
       ..write(obj.runDistance)
       ..writeByte(2)
@@ -44,7 +45,9 @@ class RunAdapter extends TypeAdapter<Run> {
       ..writeByte(6)
       ..write(obj.runMinutes)
       ..writeByte(7)
-      ..write(obj.runSeconds);
+      ..write(obj.runSeconds)
+      ..writeByte(8)
+      ..write(obj.positions);
   }
 
   @override
@@ -71,6 +74,7 @@ Run _$RunFromJson(Map<String, dynamic> json) {
     json['runHour'] as int,
     json['runMinutes'] as int,
     json['runSeconds'] as int,
+    json['positions'] as String,
   );
 }
 
@@ -82,4 +86,5 @@ Map<String, dynamic> _$RunToJson(Run instance) => <String, dynamic>{
       'runHour': instance.runHour,
       'runMinutes': instance.runMinutes,
       'runSeconds': instance.runSeconds,
+      'positions': instance.positions,
     };

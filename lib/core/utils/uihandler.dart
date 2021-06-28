@@ -7,14 +7,7 @@ abstract class UIHandler {
   Widget errorStateUi();
   Widget internetConnectivityStateUi();
   Widget noInternetConnectivityStateUi();
-  Widget handleUi({
-    required Widget idle,
-    required Widget loading,
-    required Widget success,
-    required Widget error,
-    required Widget internetConnectivity,
-    required Widget noInternetConnectivity,
-  });
+  Widget handleUi();
 
 }
 
