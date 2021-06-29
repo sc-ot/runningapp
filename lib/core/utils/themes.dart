@@ -9,6 +9,7 @@ class Themes {
     primaryColor: Themes.primaryColor,
     accentColor: Themes.accentColor,
     hintColor: accentColor,
+    cardColor: primaryColor,
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
         backgroundColor: MaterialStateProperty.all<Color>(Themes.primaryColor),

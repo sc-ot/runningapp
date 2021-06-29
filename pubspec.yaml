@@ -49,10 +49,14 @@ dependencies:
   crypto: ^3.0.1
   drawing_animation: ^0.1.5
   simple_animations: ^3.1.1
+  numberpicker: ^2.1.1
+ 
+  
 dev_dependencies:
    json_serializable: ^4.1.0
    build_runner: ^1.12.2
    hive_generator: ^1.0.1
+   
    moor_generator:
    flutter_test:
     sdk: flutter

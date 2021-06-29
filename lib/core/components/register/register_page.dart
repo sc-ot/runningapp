@@ -1,4 +1,9 @@
 import 'package:bestpractice/core/components/register/register_controller.dart';
+import 'package:bestpractice/core/components/register/register_page_gender_widget.dart';
+import 'package:bestpractice/core/components/register/register_page_height_widget.dart';
+import 'package:bestpractice/core/components/register/register_page_name_widget.dart';
+import 'package:bestpractice/core/components/register/register_page_overview_widget.dart';
+import 'package:bestpractice/core/components/register/register_page_weight_widget.dart';
 import 'package:bestpractice/core/utils/uihandler.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -31,37 +36,34 @@ class RegisterPage extends StatelessWidget implements UIHandler {
   Widget idleStateUi() {
     return Stack(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: PageView(
-            children: [
-              Center(
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: "Benutzername",
-                    hintStyle: TextStyle(
-                      fontSize: 30,
-                      
-                    ),
-                  ),
-                  style: TextStyle(
-                    fontSize: 30,
-                  ),
-                ),
-              ),
-            ],
-          ),
+        PageView(
+          controller: registerController.pageController,
+          children: [
+          
+            Center(
+              child: RegisterPageHeightWidget(),
+            ),
+           
+            Center(
+              child: RegisterPageWeightWidget(),
+            ),
+            Center(
+              child: RegisterPageOverviewWidget(),
+            ),
+          ],
         ),
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Align(
             alignment: Alignment.bottomRight,
-            child: IconButton(
-              icon: Icon(
-                Icons.next_week,
-              ),
-              onPressed: () {},
-              iconSize: 30,
+            child: FloatingActionButton.extended(
+              backgroundColor: Get.theme.backgroundColor,
+              onPressed: () {
+                registerController.nextPage();
+              },
+              
+              icon:  Icon(Icons.navigate_next_rounded),
+              label: Text("Weiter"),
             ),
           ),
         ),
